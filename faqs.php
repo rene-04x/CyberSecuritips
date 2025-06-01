@@ -1,3 +1,20 @@
+<?php
+require 'config.php'; // Database connection settings
+
+if (!isset($_SESSION['user_id'])) {
+  header("Location: login.php"); // Redirect to login if not logged in
+  exit;
+}
+
+
+
+$stmt = $pdo->query("SELECT q.id AS question_id, q.question, q.created_at, u.name 
+                     FROM questions q
+                     JOIN users u ON q.user_id = u.id
+                     ORDER BY q.created_at DESC");
+$questions = $stmt->fetchAll();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,17 +108,19 @@
     }
 
 
+    nav ul li a.active {
+      background-color: rgba(13, 24, 177, 0.8);
+    }
+
     .button-container {
-      position: absolute;
       bottom: 20px;
       left: 70px;
       gap: 10px;
       z-index: 1;
-      top: 73%;
+      margin-right: 200px;
     }
 
-    .login,
-    .sign-up {
+    .log-out {
       background-color: transparent;
       color: #f4f4f4;
       padding: 10px 30px;
@@ -111,11 +130,14 @@
       font-weight: bold;
       transition: background-color 0.3s ease;
       font-size: 20px;
-      margin-right: 20px;
+  writing-mode: horizontal-tb;
+  white-space: nowrap;     /* Prevent line breaks */
+  margin-left: -50px;
+  margin-top: 20px;
+
     }
 
-    .login:hover,
-    .sign-up:hover {
+    .log-out:hover {
       background-color: #0d18b180;
       
     }
@@ -172,71 +194,6 @@
   left: 10%;
 }
 
-
-.search-container {
-  display: flex;
-  align-items: center;
-  position: relative;
-  right: 100px;
-  top: 10px;
-  border-radius: 20px;
-  padding: 5px;
-  transition: width 0.4s ease;
-  gap: 5px;
-  
-}
-
-
-
-.search-input {
-  width: 0;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  outline: none;
-  transition: width 0.4s ease, opacity 0.4s ease;
-  opacity: 0;
-  margin-left: -60px;
-}
-
-.search-button {
-  width: 50px;
-  height: 50px;
-  background-color: rgba(13, 24, 177, 0.5);
-  border: none;
-  border-radius: 50%;
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease;
-  margin-left: 50px;
-}
-
-.search-container.active .search-input {
-  width: 180px; /* Expanding input width */
-  opacity: 1;
-}
-
-.search-container.active .search-button {
-  margin-left: -5px; /* Pushes the button to the right */
-}
-
-.search-icon {
-  font-size: 80px;
-}
-
-
-
-.nav-search-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0;
-
-}
 
 .content img {
   width: 10%;
@@ -305,6 +262,72 @@
             text-align: justify;
         }
 
+        /* New style for the user-submitted questions section */
+  .user-questions-container {
+    flex: 1;
+    padding: 30px;
+    border-radius: 15px;
+    background: rgba(30, 41, 59, 0.8);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+    min-width: 300px;
+    margin-top: 30px; /* Add some top margin to separate it */
+  }
+
+  .user-questions-container:hover {
+    transform: translateY(-10px);
+  }
+
+  .user-questions-container p {
+    font-size: 18px;
+    margin-bottom: 5px;
+    color: #f1eaea;
+    font-family: 'Merriweather', serif;
+  }
+
+  .user-questions-container small {
+    color: #aaa;
+    font-family: 'Merriweather', serif;
+  }
+
+  .user-questions-container p strong {
+    color: #e4e7eb;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 20px;
+  }
+
+  .user-questions-container p.no-questions {
+    font-size: 20px;
+    color: #f1eaea;
+    text-align: center;
+    font-family: 'Merriweather', serif;
+  }
+
+  .ask-question-button {
+    display: inline-block; /* Allows setting width and height */
+    padding: 15px 30px;
+    background-color: #0d18b1; /* Use a primary color */
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .ask-question-button:hover {
+    background-color: #0a127a; /* Darker shade for hover */
+    transform: translateY(-2px); /* Slight lift on hover */
+  }
+
+  .ask-question-button:active {
+    transform: translateY(0); /* Press effect */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
         @media (max-width: 768px) {
             .mission-vision {
                 flex-direction: column;
@@ -315,16 +338,76 @@
                 text-align: center;
             }
 
-            .nav-search-wrapper {
-                flex-direction: column;
-                align-items: center;
-            }
-            .search-container{
-                margin-left: 0;
-            }
         }
 
 
+  /* Style for individual question blocks to match mission-vision */
+  .question-block {
+    flex: 1; /* Take up available space */
+    padding: 30px; /* Match padding */
+    margin-bottom: 30px; /* Space between question blocks */
+    border-radius: 15px; /* Match border-radius */
+    background: rgba(30, 41, 59, 0.8); /* Match background */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Match box-shadow */
+    color: #f1eaea;
+    font-family: 'Merriweather', serif;
+    min-width: 300px; /* Ensure a minimum width */
+    transition: transform 0.3s ease; /* Add hover transition */
+  }
+
+  .question-block:hover {
+    transform: translateY(-10px); /* Add hover effect */
+  }
+
+  .question-block p strong {
+    color: #e4e7eb;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 20px;
+    display: block; /* Make the strong tag a block for spacing */
+    margin-bottom: 10px; /* Add space below the question */
+  }
+
+  .question-block small {
+    color: #aaa;
+    font-family: 'Merriweather', serif;
+    display: block; /* Make small elements appear on their own line */
+    margin-top: 5px;
+    margin-bottom: 15px; /* Add space below the metadata */
+  }
+
+  .question-block p.no-answers {
+    color: #aaa;
+    margin-left: 0; /* Reset left margin */
+    margin-top: 10px;
+  }
+
+  .question-block p.answer-label {
+    font-weight: bold;
+    color: #e4e7eb;
+    margin-top: 15px;
+    margin-left: 0;
+  }
+
+  .question-block p.answer-text {
+    margin-left: 20px;
+    margin-bottom: 10px;
+  }
+
+  .question-block small.answer-meta {
+    margin-left: 20px;
+    display: block;
+    margin-bottom: 15px;
+  }
+
+  /* Adjustments for the "Answer this Question" button within the block */
+  .question-block div[style*="text-align:center"] {
+    margin-top: 20px; /* Add more space above the button */
+  }
+
+  /* Remove the hr tag if you don't want the horizontal line */
+  .user-questions-container hr {
+    display: none;
+  }
 
 
   </style>
@@ -334,30 +417,23 @@
 
   <header>
     <div class="header-content">
-      <a href="index.html" class="header-content">
-        <img src="0cf447fa-b764-4863-8cc3-2e18a1-removebg-preview.png" alt="Site Logo" class="logo">
+      <a href="home.php" class="header-content">
+        <img src="0cf447fa-b764-4863-8cc3-2e18b72e18a1-removebg-preview.png" alt="Site Logo" class="logo">
         <h1>CyberSecuriTips</h1>
       </a>
       
-      <div class="nav-search-wrapper">
         <nav>
           <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="topics.html">Topics</a></li>
-            <li><a href="resources.html">Resources</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="faqs.html">FAQS</a></li>
+            <li><a href="home.php">Home</a></li>
+            <li><a href="topics.php">Topics</a></li>
+            <li><a href="resources.php">Resources</a></li>
+            <li><a href="about.php">About</a></li>
+            <li><a href="faqs.php"  class="active">FAQS</a></li>
           </ul>
+          <div class="button-container">
+            <button type="button" class="log-out" onclick="window.location.href='logout.php'">log-out</button>
+          </div>
         </nav>
-        
-        
-        <div class="search-container">
-          <input type="text" class="search-input" placeholder="Search..." />
-          <button class="search-button" id="searchToggle">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
-      </div>
     </div>
   </header>
 
@@ -434,9 +510,49 @@
                                     </ul>
                                 </p>
                             </div>
-                        </div>
-                       </div>
-           
+      </div>
+      <div class="user-questions-container">
+  <?php if (!empty($questions)): ?>
+    <?php foreach ($questions as $q): ?>
+      <div class="question-block">
+        <p><strong>Q:</strong> <?= htmlspecialchars($q['question']) ?></p>
+        <small>Asked by <?= htmlspecialchars($q['name']) ?> on <?= date("F j, Y, g:i a", strtotime($q['created_at'])) ?></small>
+
+        <?php
+        $answerStmt = $pdo->prepare("SELECT a.answer, a.created_at, u.name FROM answers a
+                                     JOIN users u ON a.user_id = u.id
+                                     WHERE a.question_id = ?
+                                     ORDER BY a.created_at ASC");
+        $answerStmt->execute([$q['question_id']]); 
+        $answers = $answerStmt->fetchAll();
+        ?>
+
+        <?php if ($answers): ?>
+          <?php foreach ($answers as $a): ?>
+            <p style="margin-left: 20px;"><strong>A:</strong> <?= htmlspecialchars($a['answer']) ?></p>
+            <small style="margin-left: 20px;">Answered by <?= htmlspecialchars($a['name']) ?> on <?= date("F j, Y, g:i a", strtotime($a['created_at'])) ?></small>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <p style="margin-left: 20px;">No answers yet.</p>
+        <?php endif; ?>
+
+        <div style="text-align:center; margin-top:10px;">
+        <a href="answer_question.php?question_id=<?= htmlspecialchars($q['question_id']) ?>" class="ask-question-button">Answer this Question</a>
+
+        </div>
+      </div>
+      <hr>
+    <?php endforeach; ?>
+  <?php else: ?>
+    <p class="no-questions">No questions have been submitted yet.</p>
+  <?php endif; ?>
+</div>
+
+<div style="text-align:center; margin-top:20px;">
+  <a href="ask_question.php" class="ask-question-button">Click here to ask a question</a>
+</div>
+
+
       </div>
     </section>
   </main>
@@ -455,11 +571,11 @@
     <p style="margin-bottom: 20px;">Stay informed. Stay protected. Learn more about cybersecurity threats and how to defend against them.</p>
 
     <div style="margin-bottom: 20px;">
-      <a href="index.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">Home</a> |
-      <a href="topics.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">Topics</a> |
-      <a href="resources.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">Resources</a> |
-      <a href="about.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">About</a> |
-      <a href="faqs.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">FAQS</a> |
+      <a href="home.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">Home</a> |
+      <a href="topics.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">Topics</a> |
+      <a href="resources.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">Resources</a> |
+      <a href="about.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">About</a> |
+      <a href="faqs.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">FAQS</a> |
     </div>
 
     <p style="margin-top: 20px; font-size: 14px; color: #aaa;">&copy; 2025 CyberSecuriTips. All rights reserved.</p>
@@ -468,11 +584,19 @@
 
 
 <script>
-const searchContainer = document.querySelector('.search-container');
-const searchToggle = document.getElementById('searchToggle');
+document.addEventListener('DOMContentLoaded', function() {
+  const navLinks = document.querySelectorAll('#mainNav a');
+  const currentPath = window.location.pathname; // Gets the current page's path (e.g., /about.html)
 
-searchToggle.addEventListener('click', () => {
-  searchContainer.classList.toggle('active');
+  navLinks.forEach(link => {
+    const linkPath = new URL(link.href, window.location.origin).pathname; // Ensure full path for comparison
+
+    if (linkPath === currentPath) {
+      link.classList.add('active');
+    } else {
+      link.classList.remove('active'); // Remove if it was previously active
+    }
+  });
 });
 </script>
 

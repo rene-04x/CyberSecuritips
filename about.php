@@ -1,3 +1,14 @@
+<?php
+require 'config.php'; // Database connection settings
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+  // Redirect the user to the login page or display an error
+  header("Location: login.php"); // Replace 'login.php' with your actual login page URL
+  exit(); // Ensure that the script stops execution after the redirect
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +19,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
 
 
   
@@ -92,18 +102,20 @@
       background-color: rgba(13, 24, 177, 0.8);
     }
 
+    nav ul li a.active {
+      background-color: rgba(13, 24, 177, 0.8);
+    }
+
 
     .button-container {
-      position: absolute;
       bottom: 20px;
       left: 70px;
       gap: 10px;
       z-index: 1;
-      top: 73%;
+      margin-right: 200px;
     }
 
-    .login,
-    .sign-up {
+    .log-out {
       background-color: transparent;
       color: #f4f4f4;
       padding: 10px 30px;
@@ -113,14 +125,18 @@
       font-weight: bold;
       transition: background-color 0.3s ease;
       font-size: 20px;
-      margin-right: 20px;
+  writing-mode: horizontal-tb;
+  white-space: nowrap;     /* Prevent line breaks */
+  margin-left: -50px;
+  margin-top: 20px;
+
     }
 
-    .login:hover,
-    .sign-up:hover {
+    .log-out:hover {
       background-color: #0d18b180;
       
     }
+
 
     .content {
       position: relative;
@@ -174,71 +190,6 @@
   left: 10%;
 }
 
-
-.search-container {
-  display: flex;
-  align-items: center;
-  position: relative;
-  right: 100px;
-  top: 10px;
-  border-radius: 20px;
-  padding: 5px;
-  transition: width 0.4s ease;
-  gap: 5px;
-  
-}
-
-
-
-.search-input {
-  width: 0;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  outline: none;
-  transition: width 0.4s ease, opacity 0.4s ease;
-  opacity: 0;
-  margin-left: -60px;
-}
-
-.search-button {
-  width: 50px;
-  height: 50px;
-  background-color: rgba(13, 24, 177, 0.5);
-  border: none;
-  border-radius: 50%;
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease;
-  margin-left: 50px;
-}
-
-.search-container.active .search-input {
-  width: 180px; /* Expanding input width */
-  opacity: 1;
-}
-
-.search-container.active .search-button {
-  margin-left: -5px; /* Pushes the button to the right */
-}
-
-.search-icon {
-  font-size: 80px;
-}
-
-
-
-.nav-search-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0;
-
-}
 
 .content img {
   width: 10%;
@@ -316,18 +267,7 @@
                 flex-direction: column;
                 text-align: center;
             }
-
-            .nav-search-wrapper {
-                flex-direction: column;
-                align-items: center;
-            }
-            .search-container{
-                margin-left: 0;
-            }
         }
-
-
-
 
   </style>
 </head>
@@ -337,31 +277,23 @@
   <!-- Sticky header -->
   <header>
     <div class="header-content">
-      <a href="index.html" class="header-content">
+      <a href="home.php" class="header-content">
         <img src="0cf447fa-b764-4863-8cc3-2e18b72e18a1-removebg-preview.png" alt="Site Logo" class="logo">
         <h1>CyberSecuriTips</h1>
       </a>
       
-      <!-- ADD THIS FLEX CONTAINER -->
-      <div class="nav-search-wrapper">
         <nav>
           <ul>
-            <li><a href="home.html">Home</a></li>
-            <li><a href="topics.html">Topics</a></li>
-            <li><a href="resources.html">Resources</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="faqs.html">FAQS</a></li>
+            <li><a href="home.php">Home</a></li>
+            <li><a href="topics.php">Topics</a></li>
+            <li><a href="resources.php">Resources</a></li>
+            <li><a href="about.php" class="active">About</a></li>
+            <li><a href="faqs.php">FAQS</a></li>
           </ul>
+          <div class="button-container">
+            <button type="button" class="log-out" onclick="window.location.href='logout.php'">log-out</button>
+          </div>
         </nav>
-        
-        
-        <div class="search-container">
-          <input type="text" class="search-input" placeholder="Search..." />
-          <button class="search-button" id="searchToggle">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
-      </div>
     </div>
   </header>
 
@@ -429,11 +361,11 @@
     <p style="margin-bottom: 20px;">Stay informed. Stay protected. Learn more about cybersecurity threats and how to defend against them.</p>
 
     <div style="margin-bottom: 20px;">
-      <a href="home.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">Home</a> |
-      <a href="topics.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">Topics</a> |
-      <a href="resources.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">Resources</a> |
-      <a href="about.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">About</a> |
-      <a href="faqs.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">FAQS</a> |
+      <a href="home.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">Home</a> |
+      <a href="topics.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">Topics</a> |
+      <a href="resources.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">Resources</a> |
+      <a href="about.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">About</a> |
+      <a href="faqs.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">FAQS</a> |
     </div>
 
     <p style="margin-top: 20px; font-size: 14px; color: #aaa;">&copy; 2025 CyberSecuriTips. All rights reserved.</p>
@@ -441,14 +373,23 @@
 </footer>
 
 
-<script>
-const searchContainer = document.querySelector('.search-container');
-const searchToggle = document.getElementById('searchToggle');
+<script> 
+document.addEventListener('DOMContentLoaded', function() {
+  const navLinks = document.querySelectorAll('#mainNav a');
+  const currentPath = window.location.pathname; // Gets the current page's path (e.g., /about.html)
 
-searchToggle.addEventListener('click', () => {
-  searchContainer.classList.toggle('active');
+  navLinks.forEach(link => {
+    const linkPath = new URL(link.href, window.location.origin).pathname; // Ensure full path for comparison
+
+    if (linkPath === currentPath) {
+      link.classList.add('active');
+    } else {
+      link.classList.remove('active'); // Remove if it was previously active
+    }
+  });
 });
-</script>
+  </script>
+
 
 </body>
 </html>

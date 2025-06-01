@@ -1,3 +1,13 @@
+<?php
+require 'config.php'; // Database connection settings
+
+if (!isset($_SESSION['user_id'])) {
+  header("Location: login.php"); // Redirect to login if not logged in
+  exit;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -108,17 +118,19 @@
     }
 
 
+    nav ul li a.active {
+      background-color: rgba(13, 24, 177, 0.8);
+    }
+
     .button-container {
-      position: absolute;
       bottom: 20px;
       left: 70px;
       gap: 10px;
       z-index: 1;
-      top: 73%;
+      margin-right: 200px;
     }
 
-    .login,
-    .sign-up {
+    .log-out {
       background-color: transparent;
       color: #f4f4f4;
       padding: 10px 30px;
@@ -128,14 +140,18 @@
       font-weight: bold;
       transition: background-color 0.3s ease;
       font-size: 20px;
-      margin-right: 20px;
+  writing-mode: horizontal-tb;
+  white-space: nowrap;     /* Prevent line breaks */
+  margin-left: -50px;
+  margin-top: 20px;
+
     }
 
-    .login:hover,
-    .sign-up:hover {
+    .log-out:hover {
       background-color: #0d18b180;
       
     }
+
 
     .content {
       position: relative;
@@ -296,70 +312,6 @@
   transform: translateX(5px);
 }
 
-.search-container {
-  display: flex;
-  align-items: center;
-  position: relative;
-  right: 100px;
-  top: 10px;
-  border-radius: 20px;
-  padding: 5px;
-  transition: width 0.4s ease;
-  gap: 5px;
-  
-}
-
-
-
-.search-input {
-  width: 0;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  outline: none;
-  transition: width 0.4s ease, opacity 0.4s ease;
-  opacity: 0;
-  margin-left: -60px;
-}
-
-.search-button {
-  width: 50px;
-  height: 50px;
-  background-color: rgba(13, 24, 177, 0.5);
-  border: none;
-  border-radius: 50%;
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease;
-  margin-left: 50px;
-}
-
-.search-container.active .search-input {
-  width: 180px; /* Expanding input width */
-  opacity: 1;
-}
-
-.search-container.active .search-button {
-  margin-left: -5px; /* Pushes the button to the right */
-}
-
-.search-icon {
-  font-size: 80px;
-}
-
-
-
-.nav-search-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
-
 .step-container {
         padding: 30px;
         border-radius: 15px;
@@ -430,16 +382,81 @@
                 flex-direction: column;
                 text-align: center;
             }
-
-            .nav-search-wrapper {
-                flex-direction: column;
-                align-items: center;
-            }
-            .search-container{
-                margin-left: 0;
-            }
         }
 
+/* Updated Add Tip Button Styling */
+#addTipButtonContainer {
+  text-align: center;
+  margin-bottom: 90px;
+  justify-self:center;
+ 
+}
+
+#addTipButton {
+  background-color: rgba(30, 41, 59, 0.9); /* Darker, semi-transparent background */
+  color: #e0f7fa; /* Light cyan/blue text */
+  padding: 12px 30px;
+  border: 1px solid #e0f7fa; /* Subtle border */
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+#addTipButton:hover {
+  background-color: rgba(51, 71, 113, 0.9); /* Slightly lighter dark blue */
+  border-color: rgb(3, 39, 56); 
+  transform: translateY(-2px);
+  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.4);
+}
+
+#addTipButton:active {
+  background-color: rgba(23, 32, 58, 0.9); /* Even darker blue */
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Updated Edit and Delete Buttons Styling */
+.step button {
+  background-color: rgba(51, 71, 113, 0.8); /* Dark blue, slightly transparent */
+  color: #b3e5fc; /* Light blue text */
+  padding: 8px 15px;
+  border: 1px solid #b3e5fc; /* Subtle border */
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
+  margin-right: 5px;
+}
+
+.step button:last-child {
+  background-color: rgba(23, 32, 58, 0.9); /* Even darker blue */
+  color: #ffdddd; /* Light red text */
+  border-color: #ffdddd; /* Subtle border */
+}
+
+.step button:hover {
+  background-color: rgba(84, 110, 153, 0.9); /* Lighter dark blue/red */
+  border-color:rgb(3, 39, 56); 
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.step button:active {
+  background-color: rgba(38, 50, 75, 0.9); /* Even darker blue/red */
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.step div[style*="margin-top:5px;"] { /* Target the div containing the buttons */
+  display: flex;
+  gap: 5px; /* Adjust the spacing between buttons */
+  justify-content: flex-end; /* Align buttons to the right */
+  margin-left: 30%;
+  align-items: center; /* Vertically align buttons if needed */
+}
 
 
   </style>
@@ -453,30 +470,23 @@
   <!-- Sticky header -->
   <header>
     <div class="header-content">
-      <a href="index.html" class="header-content">
+      <a href="home.php" class="header-content">
         <img src="0cf447fa-b764-4863-8cc3-2e18b72e18a1-removebg-preview.png" alt="Site Logo" class="logo">
         <h1>CyberSecuriTips</h1>
       </a>
       
-      <!-- ADD THIS FLEX CONTAINER -->
-      <div class="nav-search-wrapper">
         <nav>
           <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="topics.html">Topics</a></li>
-            <li><a href="resources.html">Resources</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="faqs.html">FAQS</a></li>
+            <li><a href="home.php">Home</a></li>
+            <li><a href="topics.php" class="active">Topics</a></li>
+            <li><a href="resources.php">Resources</a></li>
+            <li><a href="about.php">About</a></li>
+            <li><a href="faqs.php">FAQS</a></li>
           </ul>
+          <div class="button-container">
+            <button type="button" class="log-out" onclick="window.location.href='logout.php'">log-out</button>
+          </div>
         </nav>
-  
-        <div class="search-container">
-          <input type="text" class="search-input" placeholder="Search..." />
-          <button class="search-button" id="searchToggle">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
-      </div>
     </div>
   </header>
 
@@ -571,11 +581,34 @@
       <div class="number-circle">6</div>
       <p class="step-title"  style="padding-top: 1px;">  Segment sensitive networks from public access.</p>
   </div>
+  <?php
+try {
+  $stmt = $pdo->query("SELECT * FROM tapping_tips ORDER BY created_at ASC");
+  $tipNumber = 7; // Starting number for user tips
+  while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+      echo '<div class="step">';
+      echo '<div class="number-circle">' . $tipNumber++ . '</div>';
+      echo '<p class="step-title" style="padding-top: 1px;">' . htmlspecialchars($row['tip_text']) . '</p>';
+      // Add Edit and Delete buttons linking to edit and delete scripts with tip ID
+      echo '<div style="margin-top:5px;">';
+      echo '<a href="edit_tapping.php?id=' . $row['id'] . '"><button>Edit</button></a> ';
+      echo '<a href="delete_tapping.php?id=' . $row['id'] . '" onclick="return confirm(\'Are you sure you want to delete this tip?\');"><button>Delete</button></a>';
+      echo '</div>';
+      echo '</div>';
+  }
+} catch (PDOException $e) {
+  echo "<p>Error loading user tips: " . $e->getMessage() . "</p>";
+}
+?>
     </div>
+    <!-- Add Tip Button -->
+<div id="addTipButtonContainer" style="margin-top: -40px;">
+  <a href="add_tapping.php"><button id="addTipButton">Add a Safety Tip</button></a>
+</div>
       
       <h1>OTHER TOPICS</h1><br><br>
       <div class="flex-container">
-        <a href="attack_target.html">
+        <a href="attack_target.php">
             <div class="flex-box">
               <img src="Protect Your Devices, Protect Your Data!.jpg"><br><br>
               <h2  style="padding-left: 18%;">
@@ -585,7 +618,7 @@
             </div>
             </a>
 
-        <a href="phishing_attack.html">
+        <a href="phishing_attack.php">
         <div class="flex-box">
           <img src="Phishing Attacks Growing Concern for Internet Users.jpg"><br><br>
           <h2 style="padding-left: 15%;">
@@ -595,7 +628,7 @@
         </div>
         </a>
 
-        <a href="malware.html">
+        <a href="malware.php">
         <div class="flex-box">
           <img src="Why Red Warning Messages Can Deter Visitors and Harm Your Website’s Reputation_.jpg"><br><br>
           <h2 style="margin-right: 6px;">
@@ -605,7 +638,7 @@
         </div>
         </a>
 
-        <a href="pass_theft.html">
+        <a href="pass_theft.php">
           <div class="flex-box">
             <img src="password theft.jpg"><br><br>
             <h2 style="padding-left: 15%;">
@@ -616,7 +649,7 @@
           </a>
 
 
-            <a href="pirating.html">
+            <a href="pirating.php">
               <div class="flex-box">
                 <img src="Wireless Network Pirating.jpg"><br><br>
                 <h2 style="padding-left: 15%;">
@@ -626,7 +659,7 @@
               </div>
               </a>
 
-              <a href="cloud.html">
+              <a href="cloud.php">
                 <div class="flex-box">
                   <img src="Attacks in the Cloud.jpg"><br><br>
                   <h2 style="margin-right: 6px;">
@@ -636,7 +669,7 @@
                 </div>
                 </a>
 
-                <a href="encrypt.html">
+                <a href="encrypt.php">
                   <div class="flex-box">
                     <img src="Encryption Cracking.jpg"><br><br>
                     <h2 style="padding-left: 37%;">
@@ -663,11 +696,11 @@
     <p style="margin-bottom: 20px;">Stay informed. Stay protected. Learn more about cybersecurity threats and how to defend against them.</p>
 
     <div style="margin-bottom: 20px;">
-      <a href="index.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">Home</a> |
-      <a href="topics.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">Topics</a> |
-      <a href="resources.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">Resources</a> |
-      <a href="about.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">About</a> |
-      <a href="faqs.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">FAQS</a> |
+      <a href="home.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">Home</a> |
+      <a href="topics.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">Topics</a> |
+      <a href="resources.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">Resources</a> |
+      <a href="about.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">About</a> |
+      <a href="faqs.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">FAQS</a> |
     </div>
 
     <p style="margin-top: 20px; font-size: 14px; color: #aaa;">&copy; 2025 CyberSecuriTips. All rights reserved.</p>
@@ -676,11 +709,19 @@
 
 
 <script>
-const searchContainer = document.querySelector('.search-container');
-const searchToggle = document.getElementById('searchToggle');
+document.addEventListener('DOMContentLoaded', function() {
+  const navLinks = document.querySelectorAll('#mainNav a');
+  const currentPath = window.location.pathname; // Gets the current page's path (e.g., /about.html)
 
-searchToggle.addEventListener('click', () => {
-  searchContainer.classList.toggle('active');
+  navLinks.forEach(link => {
+    const linkPath = new URL(link.href, window.location.origin).pathname; // Ensure full path for comparison
+
+    if (linkPath === currentPath) {
+      link.classList.add('active');
+    } else {
+      link.classList.remove('active'); // Remove if it was previously active
+    }
+  });
 });
 </script>
 

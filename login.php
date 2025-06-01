@@ -1,106 +1,59 @@
 <?php
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require 'PHPMailer-master/PHPMailer-master/src/Exception.php';
-require 'PHPMailer-master/PHPMailer-master/src/PHPMailer.php';
-require 'PHPMailer-master/PHPMailer-master/src/SMTP.php';
 require 'config.php'; // Database connection settings
 
-session_start();
 
-function sendOTPEmail($toEmail, $otp) {
-    $mail = new PHPMailer(true);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // 1. Sanitize and Validate Input
+    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+    $password = $_POST['password']; // Don't sanitize directly, we'll compare against the hash
 
+    // Basic validation
+    if (empty($email) || empty($password)) {
+        echo "Please enter both email and password."; // Handle with better UI
+        exit;
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "Invalid email format."; // Handle with better UI
+        exit;
+    }
+
+    // 2. Retrieve User Data from Database
     try {
-        //Server settings
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';  // Set the SMTP server
-        $mail->SMTPAuth = true;
-        $mail->Username = 'ireneespeleta2005@gmail.com';  // SMTP username
-        $mail->Password = 'dmbk cygf dgts qmbk';  // SMTP password
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
+        $stmt = $pdo->prepare("SELECT id, name, email, password FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC); // Fetch the user's data as an associative array
 
-        //Recipients
-        $mail->setFrom('ireneespeleta2005@gmail.com', 'Your App Name');
-        $mail->addAddress($toEmail);
+        if ($user) {
+            // 3. Verify Password
+            if (password_verify($password, $user['password'])) {
+                // 4. Password is Correct!  Start a Session and Redirect
+                session_start(); // Start the session
+                $_SESSION['user_id'] = $user['id'];   // Store user ID in session
+                $_SESSION['user_name'] = $user['name']; // Store user name
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['logged_in'] = true; //set logged_in
 
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = 'Your OTP Code';
-        $mail->Body    = 'Your OTP code is: ' . $otp;
-
-        $mail->send();
-    } catch (Exception $e) {
-        $message = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-        echo "<script>
-        alert('$message');
-        </script>";
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-
-    // 1. Validate the user's email and password
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
-    $stmt->execute(['email' => $email]);
-    $user = $stmt->fetch();
-
-    if ($user && password_verify($password, $user['password'])) {
-        // 2. Generate an OTP
-        $otp = rand(100000, 999999);  // Generate a random 6-digit OTP
-        $expiration = date('Y-m-d H:i:s', strtotime('+5 minutes'));  // OTP expires in 5 minutes
-
-        // 3. Store the OTP and expiration in the database
-        $stmt = $pdo->prepare("INSERT INTO otp (user_id, otp, expiration) VALUES (:user_id, :otp, :expiration)");
-        $stmt->execute(['user_id' => $user['id'], 'otp' => $otp, 'expiration' => $expiration]);
-
-        // 4. Send the OTP to the user's email
-        sendOTPEmail($email, $otp);
-
-        // 5. Redirect to OTP verification page
-        $_SESSION['user_id'] = $user['id'];  // Store user ID for OTP verification
-        header("Location: verify_otp.php");
-        exit();
-    } else {
-        $message = "Invalid email or password.";
-        echo "<script>
-            alert('$message');
-            </script>";
-    }
-
-     $stmt = $pdo->prepare("SELECT id, name, email, password, verified FROM users WHERE email = ?");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-
-    // If user exists, verify the password
-    if ($user && password_verify($password, $user['password'])) {
-        // Check if the user is verified (if email verification is enabled)
-        if ($user['verified'] == 1) {
-            // Set session variables
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['name'];
-            $_SESSION['user_email'] = $user['email'];
-
-            // Redirect to the dashboard or home page
-            header("Location: home.php");
-            exit();
+                // Redirect to a welcome page or dashboard
+                header("Location: home.php"); //  Change to your desired page
+                exit;
+            } else {
+                echo "Invalid password."; // Handle with better UI
+                exit;
+            }
         } else {
-            // If the user is not verified, show a message
-            echo "Please verify your email first.";
+            echo "Email not found. Please register."; // Handle with better UI
+            exit;
         }
-    } else {
-        // If email doesn't exist or password is incorrect
-        $message = "Invalid email or password.";
-        echo "<script>
-            alert('$message');
-            </script>";
-
+    } catch (PDOException $e) {
+        // Handle database errors
+        echo "Error: " . $e->getMessage(); // Don't show raw error in production
+        error_log("Database Error: " . $e->getMessage());
+        echo "Sorry, there was an error logging in. Please try again later.";
+        exit;
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -257,7 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-button">← Back</a>
+    <a href="index.php" class="back-button">← Back</a>
     <video autoplay muted loop id="bg-video">
         <source src="31326f3208416de844f2e9c689de6031.mp4" type="video/mp4">
     </video>
@@ -266,10 +219,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <h2>Login</h2>
     <form action="login.php"  method="POST">
         <div class="input-group">
-            <input type="email" id="email" placeholder="Enter your email" required>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
         </div>
         <div class="input-group" style="position: relative;">
-            <input type="password" id="password" placeholder="Enter your password" required>
+            <input type="password" id="password"  name="password" placeholder="Enter your password" required>
             <span class="toggle-password" onclick="togglePassword()" title="Show/Hide Password">🙈</span>
         </div>
         <button type="submit" class="login-btn">Login</button>

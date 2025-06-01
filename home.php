@@ -2,25 +2,15 @@
 session_start();
 require 'config.php'; // Include the database connection
 
-// Check if user is logged in
+
+// Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
+  // Redirect the user to the login page or display an error
+  header("Location: login.php"); // Replace 'login.php' with your actual login page URL
+  exit(); // Ensure that the script stops execution after the redirect
 }
 
-$userId = $_SESSION['user_id'];
 
-// Fetch user data from the database using PDO
-$stmt = $pdo->prepare("SELECT name, email FROM users WHERE id = ?");
-$stmt->execute([$userId]);
-$user = $stmt->fetch();
-
-// Handle cases where user is not found
-if (!$user) {
-    session_destroy();
-    header("Location: login.php");
-    exit();
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,8 +22,6 @@ if (!$user) {
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-
 
   
   <style>
@@ -359,18 +347,18 @@ if (!$user) {
   <!-- Sticky header -->
   <header>
     <div class="header-content">
-      <a href="index.html" class="header-content">
+      <a href="home.php" class="header-content">
         <img src="0cf447fa-b764-4863-8cc3-2e18b72e18a1-removebg-preview.png" alt="Site Logo" class="logo">
         <h1>CyberSecuriTips</h1>
       </a>
       
         <nav>
           <ul>
-            <li><a href="home.html"  class="active">Home</a></li>
-            <li><a href="topics.html" >Topics</a></li>
-            <li><a href="resources.html">Resources</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="faqs.html">FAQS</a></li>
+            <li><a href="home.php"  class="active">Home</a></li>
+            <li><a href="topics.php" >Topics</a></li>
+            <li><a href="resources.php">Resources</a></li>
+            <li><a href="about.php">About</a></li>
+            <li><a href="faqs.php">FAQS</a></li>
           </ul>
 
           <div class="button-container">
@@ -404,7 +392,7 @@ if (!$user) {
       </div>
       <h1>TOPICS</h1><br><br>
       <div class="flex-container">
-        <a href="attack_target.html">
+        <a href="attack_target.php">
         <div class="flex-box">
           <img src="Protect Your Devices, Protect Your Data!.jpg"><br><br>
           <h2 style="margin-left: 20px;">
@@ -414,7 +402,7 @@ if (!$user) {
         </div>
         </a>
 
-        <a href="phishing_attack.html">
+        <a href="phishing_attack.php">
         <div class="flex-box">
           <img src="Phishing Attacks Growing Concern for Internet Users.jpg"><br><br>
           <h2>
@@ -424,7 +412,7 @@ if (!$user) {
         </div>
         </a>
 
-        <a href="malware.html">
+        <a href="malware.php">
         <div class="flex-box">
           <img src="Why Red Warning Messages Can Deter Visitors and Harm Your Website’s Reputation_.jpg"><br><br>
           <h2 style="margin-right: 6px;">
@@ -434,7 +422,7 @@ if (!$user) {
         </div>
         </a>
 
-        <a href="pass_theft.html">
+        <a href="pass_theft.php">
           <div class="flex-box">
             <img src="password theft.jpg"><br><br>
             <h2 style="margin-right: 6px;">
@@ -444,7 +432,7 @@ if (!$user) {
           </div>
           </a>
 
-          <a href="tapping.html">
+          <a href="tapping.php">
             <div class="flex-box">
               <img src="network tapping.jpg"><br><br>
               <h2 style="margin-right: 6px;">
@@ -454,7 +442,7 @@ if (!$user) {
             </div>
             </a>
 
-            <a href="pirating.html">
+            <a href="pirating.php">
               <div class="flex-box">
                 <img src="Wireless Network Pirating.jpg"><br><br>
                 <h2 style="margin-right: 6px;">
@@ -464,7 +452,7 @@ if (!$user) {
               </div>
               </a>
 
-              <a href="cloud.html">
+              <a href="cloud.php">
                 <div class="flex-box">
                   <img src="Attacks in the Cloud.jpg"><br><br>
                   <h2 style="margin-right: 6px;">
@@ -474,7 +462,7 @@ if (!$user) {
                 </div>
                 </a>
 
-                <a href="encrypt.html">
+                <a href="encrypt.php">
                   <div class="flex-box">
                     <img src="Encryption Cracking.jpg"><br><br>
                     <h2 style="margin-right: 6px;">
@@ -502,11 +490,11 @@ if (!$user) {
     <p style="margin-bottom: 20px;">Stay informed. Stay protected. Learn more about cybersecurity threats and how to defend against them.</p>
 
     <div style="margin-bottom: 20px;">
-      <a href="home.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">Home</a> |
-      <a href="topics.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">Topics</a> |
-      <a href="resources.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">Resources</a> |
-      <a href="about.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">About</a> |
-      <a href="faqs.html" style="color: #ccc; margin: 0 10px; text-decoration: none;">FAQS</a> |
+      <a href="home.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">Home</a> |
+      <a href="topics.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">Topics</a> |
+      <a href="resources.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">Resources</a> |
+      <a href="about.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">About</a> |
+      <a href="faqs.php" style="color: #ccc; margin: 0 10px; text-decoration: none;">FAQS</a> |
     </div>
 
     <p style="margin-top: 20px; font-size: 14px; color: #aaa;">&copy; 2025 CyberSecuriTips. All rights reserved.</p>
