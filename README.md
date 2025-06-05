@@ -16,6 +16,7 @@ This is an educational website designed to raise awareness about cybersecurity
   - HTML
   - CSS
   - JS
+  - PHP
  
   ## Purpose
 
